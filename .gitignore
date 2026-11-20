@@ -1,0 +1,6 @@
+.vscode
+.directory
+build/*
+deps/core/libcore.a
+deps/cglm/libcglm.a
+deps/wayland/
