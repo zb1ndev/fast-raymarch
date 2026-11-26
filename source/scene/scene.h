@@ -3,9 +3,6 @@
 
 #include <core/core.h>
 
-#include <sys/stat.h>
-#include <sys/mman.h>
-
 typedef struct frm_object_t frm_object_t;
 struct frm_object_t {
 
@@ -28,8 +25,6 @@ struct frm_scene_t {
     frm_object_t*   objects;
     uint32_t        object_count,
                     object_capacity;
-
-    #define SCENE_DEFAULT_SCENE_PATH                (NULL)
 
     // @todo sdf functions should also be able to be loaded by file
 

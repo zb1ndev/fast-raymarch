@@ -1,4 +1,4 @@
-#include <application/application.h>
+#include <base/base.h>
 
 #define FRM_HELP_STRING "fast-raymarching -- help:\n"\
                         "\t-h/--help                                    Prints Help Page\n"\
@@ -13,16 +13,16 @@
 typedef enum frm_arg_t frm_arg_t;
 enum frm_arg_t {
 
-    FRM_ARG_INVALID             = 0,
+    FRM_ARG_INVALID                 = 0,
 
-    FRM_ARG_HELP,
-    FRM_ARG_WINDOW_RESOLUTION,
-    FRM_ARG_SENSITIVITY,
-    FRM_ARG_FOV,
-    FRM_ARG_SCENE,
-    FRM_ARG_RENDER_RESOLUTION,
-    FRM_ARG_MAX_STEP_COUNT,
-    FRM_ARG_FPS,
+    FRM_ARG_HELP,                   // @note Prints the help page
+    FRM_ARG_WINDOW_RESOLUTION,      // @note Sets the target window resolution
+    FRM_ARG_SENSITIVITY,            // @note Sets the mouse look sensitivity
+    FRM_ARG_FOV,                    // @note Sets the camera field of view
+    FRM_ARG_SCENE,                  // @note Sets the target scene to one stored in the '.frm' file located at <path>
+    FRM_ARG_RENDER_RESOLUTION,      // @note Sets the target render resolution
+    FRM_ARG_MAX_STEP_COUNT,         // @note Sets the max number of raymarch steps
+    FRM_ARG_FPS,                    // @note Enables the stdout fps counter\n
 
     FRM_ARG_COUNT
 
@@ -110,8 +110,9 @@ internal int32_t frm_parse_argument(int32_t current_arg, bool is_verbose, int32_
                 return EXIT_FAILURE; 
             }
 
-            if (frm_scene_load_from_file(argv[current_arg+1], out->current_scene) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
+            out->target_scene = argv[current_arg+1];
+            cdbg_logf("scene: %s", out->target_scene);
+
             return 2;
 
         case FRM_ARG_RENDER_RESOLUTION:
@@ -162,7 +163,7 @@ int32_t frm_start_from_args(err_t* err, int32_t argc, const char** argv, frm_sta
         .window_height  = 1080,
         .sensitivity    = 200.0f,
         .field_of_view  = 90.0f,
-        .current_scene  = SCENE_DEFAULT_SCENE_PATH,
+        .target_scene   = NULL,
         .render_width   = 1280,
         .render_height  = 720,
         .max_step_count = 1000,
@@ -203,6 +204,36 @@ l_exit:
 void frm_stop(err_t* err, frm_state_t* state) {
 
     cwindow_close(err, state->window_handle);
-    frm_scene_unload(state->current_scene);
 
 }
+
+char* frm_open_and_read_file(const char* file_path, uint32_t* size_out) {
+
+    FILE* file = fopen(file_path, "rb");
+    if (file == NULL) {
+        cdbg_errf("failed to open %s", file_path);
+        return NULL;
+    }
+
+    struct stat fd_stat;
+    int fd = fileno(file);
+    if (fstat(fd, &fd_stat) < 0) {
+        cdbg_errf("failed to get file size %s", file_path);
+        fclose(file);
+        return NULL;
+    }
+
+    *size_out = fd_stat.st_size;
+    char* result = mmap(NULL, fd_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    fclose(file);
+
+    if (result == MAP_FAILED) {
+        cdbg_err("failed to read shader file");
+        return NULL;
+    }
+
+    return result;
+
+}
+
+void frm_close_file(char* data, uint32_t size) { munmap(data, size); }

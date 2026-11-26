@@ -1,6 +1,6 @@
 #include <core/core.h>
+#include <base/base.h>
 #include <scene/scene.h>
-#include <application/application.h>
 
 int32_t main(int32_t argc, const char** argv) {
 

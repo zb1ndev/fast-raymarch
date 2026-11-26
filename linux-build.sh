@@ -38,8 +38,8 @@ if [[ $run_only -eq 0 ]]; then
     object_files=()
     source_files="
         ./source/main.c 
+        ./source/base/base.c
         ./source/scene/scene.c 
-        ./source/application/application.c
     "
 
     includes="-L./deps/cglm -L./deps/core -I./deps/ -I./source"

@@ -7,7 +7,7 @@ int32_t frm_scene_load_from_file(const char* file_name, frm_scene_t* out) {
         return EXIT_FAILURE;
     }
 
-    if (file_name == SCENE_DEFAULT_SCENE_PATH) /* loads demo scene if no file is provided */ {
+    if (file_name == NULL) /* loads demo scene if no file is provided */ {
 
         #define INTERNAL_SDF_MATERIAL_GRID                       (0) // @note demo: use for floor
         #define INTERNAL_SDF_MATERIAL_OPAQUE                     (1) // @note demo: use for sphere 1
