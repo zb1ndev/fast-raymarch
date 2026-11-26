@@ -36,27 +36,21 @@ fi
 if [[ $run_only -eq 0 ]]; then
 
     object_files=()
-    source_files=(
-        "./deps/glad/glad.c"
-        "./source/debug/debug.c"
-        "./source/input/input-state.c"
-        "./deps/wayland/xdg-shell-protocol.c"
-        "./source/window/linux/window-linux.c"
-        "./source/graphics/linux/graphics-linux.c"
-        "./deps/wayland/xdg-toplevel-icon-v1-protocol.c"
-        "./deps/wayland/relative-pointer-unstable-v1-protocol.c"
-        "./deps/wayland/pointer-constraints-unstable-v1-protocol.c"
-    )
+    source_files="
+        ./source/main.c 
+        ./source/scene/scene.c 
+        ./source/application/application.c
+    "
 
-    includes="-L./deps/cglm -L./deps/core -I./deps/"
+    includes="-L./deps/cglm -L./deps/core -I./deps/ -I./source"
     linkages="-lwayland-client -lwayland-cursor -lwayland-egl -lGL -lEGL -lGLESv2 -lrt -lcglm -lm"
     cflags=""
     compiler="gcc"
     
-    run "gcc -o ./build/fast-raymarch ./source/main.c  $includes -lcore $linkages"
+    run "gcc -o ./build/fast-raymarch $source_files $includes -lcore $linkages"
 
 fi
 
 echo
 
-run "./build/fast-raymarch"
+run "./build/fast-raymarch -fps"
